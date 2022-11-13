@@ -1,0 +1,180 @@
+package stt;
+
+import edu.cmu.sphinx.api.Configuration;
+import edu.cmu.sphinx.api.LiveSpeechRecognizer;
+import edu.cmu.sphinx.api.SpeechResult;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+
+import java.util.Locale;
+import javax.speech.Central;
+import javax.speech.synthesis.Synthesizer;
+import javax.speech.synthesis.SynthesizerModeDesc;
+
+public class VoiceLauncher {
+	 public static void main(String[] args) throws IOException {
+	        //Configuration Object
+	        Configuration configuration = new Configuration();
+	 
+	        // Setting path to the acoustic model.
+	        configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+	        // Seting path to the dictionary.
+	        configuration.setDictionaryPath("3878.dic");
+	        // Setting path to the language model.
+	        configuration.setLanguageModelPath("3878.lm");
+	 
+	        //Recognizer object
+	        LiveSpeechRecognizer recognize = new LiveSpeechRecognizer(configuration);
+	 
+	        //Start Recognition Process 
+	        recognize.startRecognition(true);
+	 
+	        //Create SpeechResult Object
+	        SpeechResult result;
+	        
+	        Synthesizer synthesizer=null;
+	        
+	        try {
+	        System.setProperty("freetts.voices",
+	                 "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory"); 
+	                  
+	             // Register Engine
+	             Central.registerEngineCentral
+	                 ("com.sun.speech.freetts.jsapi.FreeTTSEngineCentral");
+	  
+	             // Create a Synthesizer
+	             synthesizer =                                         
+	                 Central.createSynthesizer(new SynthesizerModeDesc(Locale.US));     
+	      
+	             // Allocate synthesizer
+	             synthesizer.allocate();
+	        }
+	        catch (Exception e) 
+	         {
+	             e.printStackTrace();
+	         }
+	 
+	        //Checking if recognizer has recognized the speech
+	        while ((result = recognize.getResult()) != null) {
+	            //converting into text
+	            String command = result.getHypothesis();
+	            System.out.println(command);
+	            
+	            String work=null;
+	            Process p;
+	            
+	            if(command.equalsIgnoreCase("open file manager")) {
+	            	System.out.println("open file manager");
+	            	try {
+	            	    Desktop.getDesktop().open(new File("C:/ProgramData"));
+	            	} catch (IOException e) {
+	            	    e.printStackTrace();
+	            	}
+	                work = "nautilus";
+	                
+	                try {
+	             // Resume Synthesizer
+	                synthesizer.resume();    
+	                 
+	                // speaks the given text until queue is empty.
+	                synthesizer.speakPlainText("file manager opened", null);         
+	                synthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
+	                }
+	                
+	                catch (Exception e) 
+	                {
+	                    e.printStackTrace();
+	                }
+	                
+	               
+	            } else if (command.equalsIgnoreCase("close file manager")) {
+	            	System.out.println("close file manager");
+	            	Runtime.getRuntime().exec("taskkill /f /IM cmd.exe");
+	            	try {
+	   	             // Resume Synthesizer
+	   	                synthesizer.resume();    
+	   	                 
+	   	                // speaks the given text until queue is empty.
+	   	                synthesizer.speakPlainText("file manager closed", null);         
+	   	                synthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
+	   	                }
+	   	                
+	   	                catch (Exception e) 
+	   	                {
+	   	                    e.printStackTrace();
+	   	                }
+	            	
+	                work = "pkill nautilus";
+	            } else if (command.equalsIgnoreCase("open browser")) {
+	            	System.out.println("open browser");
+	            	try {
+	            	    p = Runtime.getRuntime().exec("\"/Program Files (x86)/Google/Chrome/Application/chrome.exe\"");
+	            	    p.waitFor();
+	            	    System.out.println("Google Chrome launched!");
+	            	    
+	            	} catch (Exception e) {
+	            	    e.printStackTrace();
+	            	}
+	                work = "google-chrome";
+	                try {
+	   	             // Resume Synthesizer
+	   	                synthesizer.resume();    
+	   	                 
+	   	                // speaks the given text until queue is empty.
+	   	                synthesizer.speakPlainText("google chrome launched", null);         
+	   	                synthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
+	   	                }
+	   	                
+	   	                catch (Exception e) 
+	   	                {
+	   	                    e.printStackTrace();
+	   	                }
+	            } else if (command.equalsIgnoreCase("close browser")) {
+	            	System.out.println("close browser");
+	            	Runtime rt = Runtime.getRuntime();
+
+	            	rt.exec("taskkill /F /IM chrome.exe");
+	            	try {
+	   	             // Resume Synthesizer
+	   	                synthesizer.resume();    
+	   	                 
+	   	                // speaks the given text until queue is empty.
+	   	                synthesizer.speakPlainText("browser closed", null);         
+	   	                synthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
+	   	                }
+	   	                
+	   	                catch (Exception e) 
+	   	                {
+	   	                    e.printStackTrace();
+	   	                }
+	                work = "pkill google-chrome";
+	            }
+	            /*
+	            else
+	            {
+	            	try {
+	   	             // Resume Synthesizer
+	   	                synthesizer.resume();    
+	   	                 
+	   	                // speaks the given text until queue is empty.
+	   	                synthesizer.speakPlainText(command, null);         
+	   	                synthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
+	   	                }
+	   	                
+	   	                catch (Exception e) 
+	   	                {
+	   	                    e.printStackTrace();
+	   	                }
+	            }
+	            */
+	           
+	          
+
+	        }
+	    }
+	 
+	
+	}
+
